@@ -30,7 +30,7 @@ const swaggerOptions = {
         url: `http://localhost:${PORT}`,
       },
       {
-        url: `https://seatwaves.onrender.com:${PORT}`,
+        url: `https://seatwaves.onrender.com`,
       },
     ],
   },
