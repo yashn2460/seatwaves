@@ -29,6 +29,9 @@ const swaggerOptions = {
       {
         url: `http://localhost:${PORT}`,
       },
+      {
+        url: `https://seatwaves.onrender.com:${PORT}`,
+      },
     ],
   },
   apis: ["./src/routes/*.js"],
