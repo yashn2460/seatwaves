@@ -22,8 +22,15 @@ const verifyOtp = {
   }),
 };
 
+const googleLogin = {
+  body: Joi.object().keys({
+    token: Joi.string().required(),
+  }),
+};
+
 module.exports = {
   register,
   login,
   verifyOtp,
+  googleLogin,
 }; 

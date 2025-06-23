@@ -1,6 +1,10 @@
 const { userService, tokenService, emailService } = require("../services");
 const { sendResponse } = require("../utils/responseHandler");
 const { generateOtp } = require("../utils/otp.util");
+const { OAuth2Client } = require("google-auth-library");
+
+// TODO: Add GOOGLE_CLIENT_ID to your .env file
+const client = new OAuth2Client("441777013950-22hrrplbgu3cpg2ao6aqd7c2i13rn9qj.apps.googleusercontent.com");
 
 const register = async (req, res) => {
   try {
@@ -59,8 +63,39 @@ const verifyOtp = async (req, res) => {
   }
 };
 
+const googleLogin = async (req, res) => {
+  const { token } = req.body;
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: "441777013950-22hrrplbgu3cpg2ao6aqd7c2i13rn9qj.apps.googleusercontent.com", // Specify the CLIENT_ID of the app that accesses the backend
+    });
+    const { name, email, sub: googleId } = ticket.getPayload();
+
+    let user = await userService.getUserByEmail(email);
+
+    if (!user) {
+      user = await userService.createUser({
+        name,
+        email,
+        googleId,
+        isEmailVerified: true,
+      });
+    } else if (!user.googleId) {
+      user.googleId = googleId;
+      await user.save();
+    }
+
+    const appToken = tokenService.generateAuthTokens(user._id);
+    sendResponse(res, 200, "Google login successful", { user, token: appToken });
+  } catch (error) {
+    sendResponse(res, 401, "Google authentication failed");
+  }
+};
+
 module.exports = {
   register,
   login,
   verifyOtp,
+  googleLogin,
 }; 

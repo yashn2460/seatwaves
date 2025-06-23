@@ -114,4 +114,34 @@ router.post(
   authController.verifyOtp
 );
 
+/**
+ * @swagger
+ * /api/auth/google-login:
+ *   post:
+ *     summary: Login with Google
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: Google ID token from client-side
+ *     responses:
+ *       "200":
+ *         description: OK
+ *       "401":
+ *         description: Google authentication failed
+ */
+router.post(
+  "/google-login",
+  validate(authValidation.googleLogin),
+  authController.googleLogin
+);
+
 module.exports = router; 

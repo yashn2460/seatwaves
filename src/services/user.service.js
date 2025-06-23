@@ -6,6 +6,11 @@ const User = require("../models/user.model");
  * @returns {Promise<{user: User, isNew: boolean}>}
  */
 const createUser = async (userBody) => {
+  // If the user is being created via Google, they are already verified
+  if (userBody.googleId) {
+    return { user: await User.create(userBody), isNew: true };
+  }
+
   const existingUser = await User.findOne({ email: userBody.email });
 
   if (existingUser) {

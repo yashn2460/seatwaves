@@ -17,8 +17,14 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return !this.googleId && !this.isEmailVerified;
+      },
       private: true, // hide this field from query results
+    },
+    googleId: {
+      type: String,
+      private: true,
     },
     isEmailVerified: {
       type: Boolean,
@@ -55,5 +61,4 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
 
 const User = mongoose.model("User", userSchema);
 
-module.exports = User; 
 module.exports = User; 
