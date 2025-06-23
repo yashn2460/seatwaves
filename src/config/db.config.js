@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 // TODO: Move this to .env file
-const MONGODB_URI = "mongodb://localhost:27017/seartwaves";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/seartwaves";
 
 const connectDB = async () => {
   try {
