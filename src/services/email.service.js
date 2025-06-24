@@ -37,6 +37,13 @@ const sendVerificationEmail = async (to, otp) => {
   await sendEmail(to, subject, text);
 };
 
+const sendPasswordResetEmail = async (to, otp) => {
+  const subject = "Password Reset";
+  const text = `Your password reset code is: ${otp}\n\nThis code will expire in 10 minutes.`;
+  await sendEmail(to, subject, text);
+};
+
 module.exports = {
   sendVerificationEmail,
+  sendPasswordResetEmail,
 }; 

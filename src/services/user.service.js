@@ -36,7 +36,34 @@ const getUserByEmail = async (email) => {
   return User.findOne({ email });
 };
 
+/**
+ * Get user by id
+ * @param {ObjectId} id
+ * @returns {Promise<User>}
+ */
+const getUserById = async (id) => {
+  return User.findById(id);
+};
+
+/**
+ * Update user by id
+ * @param {ObjectId} userId
+ * @param {Object} updateBody
+ * @returns {Promise<User>}
+ */
+const updateUserById = async (userId, updateBody) => {
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+  Object.assign(user, updateBody);
+  await user.save();
+  return user;
+};
+
 module.exports = {
   createUser,
   getUserByEmail,
+  getUserById,
+  updateUserById,
 }; 

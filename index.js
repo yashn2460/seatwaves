@@ -15,13 +15,14 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use("/uploads", express.static("uploads"));
 
 // Swagger documentation setup
 const swaggerOptions = {
   swaggerDefinition: {
     openapi: "3.0.0",
     info: {
-      title: "Node.js Project API",
+      title: "SeatWaves Project API",
       version: "1.0.0",
       description: "API documentation for the Node.js project",
     },
@@ -33,6 +34,15 @@ const swaggerOptions = {
         url: `https://seatwaves.onrender.com`,
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
   },
   apis: ["./src/routes/*.js"],
 };

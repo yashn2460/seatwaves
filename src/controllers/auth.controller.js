@@ -22,6 +22,7 @@ const register = async (req, res) => {
 
     sendResponse(res, isNew ? 201 : 200, message);
   } catch (error) {
+    console.log(error);
     sendResponse(res, 400, error.message);
   }
 };
@@ -30,6 +31,9 @@ const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await userService.getUserByEmail(email);
+    if(user.googleId){
+      return sendResponse(res, 401, "Please login with Google");
+    }
     if (!user || !(await user.comparePassword(password))) {
       return sendResponse(res, 401, "Invalid email or password");
     }
@@ -39,6 +43,7 @@ const login = async (req, res) => {
     const token = tokenService.generateAuthTokens(user._id);
     sendResponse(res, 200, "Login successful", { user, token });
   } catch (error) {
+    console.log(error);
     sendResponse(res, 500, "Internal server error");
   }
 };
