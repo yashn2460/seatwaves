@@ -20,7 +20,7 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (ex) {
-    sendResponse(res, 400, "Invalid token.");
+    sendResponse(res, 401, "Invalid token.");
   }
 };
 
