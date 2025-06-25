@@ -1,46 +1,73 @@
-const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
 
-// Looking to send emails in production? Check out our Email API/SMTP product!
-var transport = nodemailer.createTransport({
-  host: "sandbox.smtp.mailtrap.io",
-  port: 2525,
-  auth: {
-    user: "294b6d40e7440d",
-    pass: "07eb78e1c6bdb6"
+// TODO: Add SENDGRID_API_KEY to your .env file
+const SENDGRID_API_KEY = process.env.SENDGRID_KEY;
+const FROM_EMAIL = process.env.FROM_EMAIL;
+const LOGO_URL = "https://seatwaves.netlify.app/Logo-1.png";
+const THEME_COLOR = "#d32f2f";
+
+// Set SendGrid API key
+sgMail.setApiKey(SENDGRID_API_KEY);
+
+function buildEmailTemplate({ title, message, otp, footer }) {
+  return `
+    <div style="font-family: Arial, sans-serif; background: #fff; max-width: 600px; margin: 0 auto; border-radius: 10px; overflow: hidden; border: 1px solid #eee;">
+      <div style="background: ${THEME_COLOR}; padding: 24px 0; text-align: center;">
+        <img src="${LOGO_URL}" alt="SeatWaves Logo" style="height: 48px; margin-bottom: 8px;" />
+      </div>
+      <div style="padding: 32px 24px 24px 24px;">
+        <h2 style="color: ${THEME_COLOR}; margin-bottom: 8px;">${title}</h2>
+        <p style="font-size: 16px; color: #222; margin-bottom: 24px;">${message}</p>
+        ${otp ? `<div style="background: #f4f4f4; padding: 20px; text-align: center; font-size: 28px; font-weight: bold; color: ${THEME_COLOR}; letter-spacing: 4px; border-radius: 8px; margin-bottom: 24px;">${otp}</div>` : ""}
+        <p style="font-size: 14px; color: #888; margin-bottom: 0;">${footer || "If you didn't request this, please ignore this email."}</p>
+      </div>
+      <div style="background: #222; color: #fff; text-align: center; padding: 16px 0; font-size: 13px;">
+        &copy; ${new Date().getFullYear()} SeatWaves. All rights reserved.
+      </div>
+    </div>
+  `;
+}
+
+const sendEmail = async (to, subject, text, html = null) => {
+  const msg = {
+    to,
+    from: FROM_EMAIL,
+    subject,
+    text,
+    ...(html && { html }),
+  };
+  
+  try {
+    await sgMail.send(msg);
+    console.log(`Email sent successfully to ${to}`);
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw error;
   }
-});
-// TODO: Add these to your .env file
-const EMAIL_HOST = "sandbox.smtp.mailtrap.io";
-const EMAIL_PORT = 2525;
-const EMAIL_USER = "294b6d40e7440d";
-const EMAIL_PASS = "07eb78e1c6bdb6";
-const EMAIL_FROM = "294b6d40e7440d";
-
-const transporter = nodemailer.createTransport({
-  host: EMAIL_HOST,
-  port: EMAIL_PORT,
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASS,
-  },
-});
-
-const sendEmail = async (to, subject, text) => {
-  const msg = { from: EMAIL_FROM, to, subject, text };
-  await transporter.sendMail(msg);
 };
 
 const sendVerificationEmail = async (to, otp) => {
   const subject = "Email Verification";
   const text = `Your verification code is: ${otp}\n\nThis code will expire in 10 minutes.`;
-  await sendEmail(to, subject, text);
+  const html = buildEmailTemplate({
+    title: "Email Verification",
+    message: "Your verification code is below. This code will expire in 10 minutes.",
+    otp,
+  });
+  
+  await sendEmail(to, subject, text, html);
 };
 
 const sendPasswordResetEmail = async (to, otp) => {
   const subject = "Password Reset";
   const text = `Your password reset code is: ${otp}\n\nThis code will expire in 10 minutes.`;
-  await sendEmail(to, subject, text);
+  const html = buildEmailTemplate({
+    title: "Password Reset",
+    message: "Your password reset code is below. This code will expire in 10 minutes.",
+    otp,
+  });
+  
+  await sendEmail(to, subject, text, html);
 };
 
 module.exports = {
