@@ -1,7 +1,9 @@
 const express = require("express");
 const userController = require("../controllers/user.controller");
+const favoriteController = require("../controllers/favorite.controller");
 const validate = require("../middlewares/validate.middleware");
 const userValidation = require("../validations/user.validation");
+const eventValidation = require("../validations/event.validation");
 const auth = require("../middlewares/auth.middleware");
 const upload = require("../middlewares/upload.middleware");
 
@@ -166,5 +168,74 @@ router.post(
   validate(userValidation.resetPassword),
   userController.resetPassword
 );
+
+/**
+ * @swagger
+ * /api/user/favorites:
+ *   get:
+ *     summary: Get user favorites
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       "200":
+ *         description: OK
+ *       "401":
+ *         description: Unauthorized
+ */
+router.get("/favorites", auth, favoriteController.getUserFavorites);
+
+/**
+ * @swagger
+ * /api/user/favorites:
+ *   post:
+ *     summary: Add event to favorites
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - eventId
+ *             properties:
+ *               eventId:
+ *                 type: string
+ *     responses:
+ *       "200":
+ *         description: OK
+ *       "400":
+ *         description: Event already in favorites
+ *       "401":
+ *         description: Unauthorized
+ */
+router.post("/favorites", auth, validate(eventValidation.addToFavorites), favoriteController.addToFavorites);
+
+/**
+ * @swagger
+ * /api/user/favorites/{eventId}:
+ *   delete:
+ *     summary: Remove event from favorites
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: eventId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       "200":
+ *         description: OK
+ *       "401":
+ *         description: Unauthorized
+ *       "404":
+ *         description: Event not found in favorites
+ */
+router.delete("/favorites/:eventId", auth, favoriteController.removeFromFavorites);
 
 module.exports = router; 

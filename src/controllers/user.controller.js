@@ -13,7 +13,8 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const { name } = req.body;
+    // Use validated data if available, otherwise use req.body
+    const { name, profileImage } = res.locals.validatedData?.body || req.body;
     const updateData = {};
     
     if (name) updateData.name = name;
@@ -32,7 +33,8 @@ const updateProfile = async (req, res) => {
 
 const forgotPassword = async (req, res) => {
   try {
-    const { email } = req.body;
+    // Use validated data if available, otherwise use req.body
+    const { email } = res.locals.validatedData?.body || req.body;
     const user = await userService.getUserByEmail(email);
     
     if (!user) {
@@ -54,7 +56,8 @@ const forgotPassword = async (req, res) => {
 
 const changePassword = async (req, res) => {
   try {
-    const { currentPassword, newPassword } = req.body;
+    // Use validated data if available, otherwise use req.body
+    const { currentPassword, newPassword } = res.locals.validatedData?.body || req.body;
     const user = await userService.getUserById(req.user._id);
 
     if (!(await user.comparePassword(currentPassword))) {
@@ -72,7 +75,8 @@ const changePassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const { email, otp, newPassword } = req.body;
+    // Use validated data if available, otherwise use req.body
+    const { email, otp, newPassword } = res.locals.validatedData?.body || req.body;
     const user = await userService.getUserByEmail(email);
     
     if (!user || user.otp !== otp || user.otpExpires < Date.now()) {

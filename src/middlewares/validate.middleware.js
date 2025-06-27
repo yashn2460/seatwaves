@@ -18,7 +18,9 @@ const validate = (schema) => (req, res, next) => {
       .join(", ");
     return sendResponse(res, 400, errorMessage);
   }
-  Object.assign(req, value);
+
+  // Instead of assigning to req, we'll pass the validated data through res.locals
+  res.locals.validatedData = value;
   return next();
 };
 

@@ -8,7 +8,9 @@ const client = new OAuth2Client("441777013950-22hrrplbgu3cpg2ao6aqd7c2i13rn9qj.a
 
 const register = async (req, res) => {
   try {
-    const { user, isNew } = await userService.createUser(req.body);
+    // Use validated data if available, otherwise use req.body
+    const userData = res.locals.validatedData?.body || req.body;
+    const { user, isNew } = await userService.createUser(userData);
     const otp = generateOtp();
     user.otp = otp;
     user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
@@ -28,7 +30,8 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
+  // Use validated data if available, otherwise use req.body
+  const { email, password } = res.locals.validatedData?.body || req.body;
   try {
     const user = await userService.getUserByEmail(email);
     if(user.googleId){
@@ -49,7 +52,8 @@ const login = async (req, res) => {
 };
 
 const verifyOtp = async (req, res) => {
-  const { email, otp } = req.body;
+  // Use validated data if available, otherwise use req.body
+  const { email, otp } = res.locals.validatedData?.body || req.body;
   try {
     const user = await userService.getUserByEmail(email);
     if (!user || user.otp !== otp || user.otpExpires < Date.now()) {
@@ -69,7 +73,8 @@ const verifyOtp = async (req, res) => {
 };
 
 const googleLogin = async (req, res) => {
-  const { token } = req.body;
+  // Use validated data if available, otherwise use req.body
+  const { token } = res.locals.validatedData?.body || req.body;
   try {
     const ticket = await client.verifyIdToken({
       idToken: token,
